@@ -4,144 +4,282 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>阑夜行 · Ethan — Developer Homelab</title>
-<meta name="description" content="Ethan (阑夜行): developer homelab — a three-machine dev cluster orchestrated over MCP.">
+<meta name="description" content="Ethan (阑夜行): a three-machine developer homelab, orchestrated over MCP — architecture, node strengths and how agents collaborate.">
 <style>
-:root{--bg:#07080d;--panel:#0e111a;--line:#1f2533;--txt:#e8ebf2;--mut:#8b93a7;--a:#7c6cff;--b:#22d3ee;--c:#f472b6;--g:#34d399}
+:root{--bg:#06070c;--panel:#0d1019;--panel2:#111522;--line:#1d2332;--txt:#e9ecf3;--mut:#8b93a7;--dim:#5b6479;--a:#7c6cff;--b:#22d3ee;--c:#f472b6;--g:#34d399;--y:#fbbf24}
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--txt);font:16px/1.7 -apple-system,"PingFang SC","Noto Sans SC","Microsoft YaHei",system-ui,sans-serif;overflow-x:hidden}
-body:before{content:"";position:fixed;inset:0;background:radial-gradient(900px 500px at 15% -10%,#7c6cff22,transparent 60%),radial-gradient(800px 500px at 100% 20%,#22d3ee18,transparent 60%);pointer-events:none;z-index:-1}
-.wrap{max-width:1040px;margin:0 auto;padding:0 24px}
-nav{display:flex;justify-content:space-between;align-items:center;padding:28px 0}
-.logo{font-weight:800;letter-spacing:.08em}
+body{background:var(--bg);color:var(--txt);font:16px/1.75 -apple-system,"PingFang SC","Noto Sans SC","Microsoft YaHei",system-ui,sans-serif;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;background:radial-gradient(900px 520px at 12% -8%,#7c6cff26,transparent 60%),radial-gradient(760px 480px at 100% 18%,#22d3ee1c,transparent 60%),radial-gradient(700px 500px at 50% 110%,#f472b614,transparent 60%);pointer-events:none;z-index:-1}
+body:after{content:"";position:fixed;inset:0;background-image:linear-gradient(#ffffff06 1px,transparent 1px),linear-gradient(90deg,#ffffff06 1px,transparent 1px);background-size:48px 48px;mask-image:radial-gradient(ellipse at 50% 0,#000 30%,transparent 75%);pointer-events:none;z-index:-1}
+a{color:inherit}
+.wrap{max-width:1100px;margin:0 auto;padding:0 24px}
+nav{position:sticky;top:0;z-index:9;backdrop-filter:blur(14px);background:#06070cb3;border-bottom:1px solid #ffffff0a}
+nav .wrap{display:flex;justify-content:space-between;align-items:center;height:62px}
+.logo{font-weight:800;letter-spacing:.1em}
 .logo span{color:var(--a)}
-nav a{color:var(--mut);text-decoration:none;margin-left:22px;font-size:14px}
-nav a:hover{color:var(--txt)}
-.hero{padding:90px 0 70px}
-.tag{display:inline-block;font-size:12px;letter-spacing:.2em;color:var(--b);border:1px solid #22d3ee44;border-radius:99px;padding:4px 14px;margin-bottom:26px}
-h1{font-size:clamp(42px,8vw,84px);line-height:1.05;font-weight:800;letter-spacing:-.02em}
-h1 .grad{background:linear-gradient(90deg,var(--a),var(--b) 55%,var(--c));-webkit-background-clip:text;background-clip:text;color:transparent}
-.lead{max-width:640px;color:var(--mut);font-size:19px;margin-top:24px}
-section{padding:70px 0;border-top:1px solid var(--line)}
-h2{font-size:13px;letter-spacing:.25em;color:var(--mut);font-weight:600;margin-bottom:12px}
-h3{font-size:32px;font-weight:800;margin-bottom:18px;letter-spacing:-.01em}
-.sub{color:var(--mut);max-width:680px}
-.topo{margin-top:40px;background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:18px;overflow:hidden}
-.topo svg{width:100%;height:auto;display:block}
+nav .links a{color:var(--mut);text-decoration:none;margin-left:22px;font-size:14px}
+nav .links a:hover{color:var(--txt)}
+.hero{padding:96px 0 60px}
+.tag{display:inline-block;font-size:12px;letter-spacing:.22em;color:var(--b);border:1px solid #22d3ee44;border-radius:99px;padding:4px 14px;margin-bottom:26px}
+h1{font-size:clamp(44px,8vw,88px);line-height:1.04;font-weight:800;letter-spacing:-.025em}
+.grad{background:linear-gradient(90deg,var(--a),var(--b) 50%,var(--c));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{max-width:680px;color:var(--mut);font-size:19px;margin-top:24px}
+.lead.en{font-size:15px;margin-top:10px;color:var(--dim)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:56px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+.stat b{display:block;font-size:30px;font-weight:800;letter-spacing:-.02em}
+.stat span{color:var(--mut);font-size:13px}
+section{padding:84px 0;border-top:1px solid var(--line)}
+.eyebrow{font-size:12.5px;letter-spacing:.26em;color:var(--b);font-weight:700;margin-bottom:10px}
+h2{font-size:clamp(28px,4vw,40px);font-weight:800;letter-spacing:-.015em;margin-bottom:14px}
+.sub{color:var(--mut);max-width:720px}
+.box{margin-top:40px;background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:18px;overflow:hidden}
+svg{width:100%;height:auto;display:block}
 .flow{stroke-dasharray:6 10;animation:dash 1.6s linear infinite}
+.flow.r{animation-direction:reverse}
 @keyframes dash{to{stroke-dashoffset:-32}}
 .pulse{animation:p 2.4s ease-in-out infinite}
-@keyframes p{0%,100%{opacity:.35}50%{opacity:1}}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin-top:36px}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:24px;position:relative;overflow:hidden}
-.card:after{content:"";position:absolute;left:0;top:0;height:3px;width:100%;background:var(--k)}
-.card .os{font-size:12px;color:var(--mut);letter-spacing:.1em}
-.card h4{font-size:21px;margin:6px 0 10px}
-.card p{color:var(--mut);font-size:14.5px}
-.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--g);box-shadow:0 0 10px var(--g);margin-right:8px}
-.stack{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+@keyframes p{0%,100%{opacity:.3}50%{opacity:1}}
+.layers{display:grid;gap:10px;margin-top:28px}
+.layer{display:grid;grid-template-columns:150px 1fr;gap:18px;align-items:center;background:var(--panel2);border:1px solid var(--line);border-left:3px solid var(--k);border-radius:14px;padding:14px 18px}
+.layer b{font-size:15px}
+.layer small{display:block;color:var(--dim);font-size:11.5px;letter-spacing:.16em}
+.layer p{color:var(--mut);font-size:14.5px}
+.nodes{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:40px}
+.node{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:26px;position:relative;overflow:hidden}
+.node:before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--k)}
+.node:after{content:"";position:absolute;right:-60px;top:-60px;width:180px;height:180px;border-radius:50%;background:var(--k);opacity:.08;filter:blur(10px)}
+.node .os{font-size:11.5px;color:var(--dim);letter-spacing:.16em}
+.node h3{font-size:22px;margin:6px 0 4px;display:flex;align-items:center;gap:10px}
+.node .role{color:var(--k);font-weight:700;font-size:14px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--g);box-shadow:0 0 10px var(--g)}
+.spec{margin:18px 0;font-size:13px;color:var(--mut)}
+.spec div{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #ffffff10}
+.spec div span:last-child{color:var(--txt)}
+.bars{margin:16px 0 4px}
+.bar{font-size:12px;color:var(--mut);margin-bottom:8px}
+.bar i{display:block;height:6px;border-radius:9px;background:#1a2030;margin-top:4px;overflow:hidden}
+.bar i:after{content:"";display:block;height:100%;width:var(--w);background:var(--k);border-radius:9px}
+.node ul{list-style:none;margin-top:14px}
+.node li{font-size:14px;color:#c8cddc;padding-left:18px;position:relative;margin:6px 0}
+.node li:before{content:"";position:absolute;left:0;top:10px;width:7px;height:7px;border-radius:2px;background:var(--k)}
+table{width:100%;border-collapse:collapse;margin-top:36px;font-size:14.5px}
+th,td{text-align:left;padding:14px 16px;border-bottom:1px solid var(--line)}
+th{color:var(--dim);font-size:12px;letter-spacing:.16em;font-weight:600}
+td:first-child{color:var(--txt);font-weight:600}
+td{color:var(--mut)}
+.chip{display:inline-block;font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;border:1px solid var(--k);color:var(--k);white-space:nowrap}
+.tbl{background:var(--panel);border:1px solid var(--line);border-radius:20px;overflow-x:auto;margin-top:36px}
+.tbl table{margin:0}
+.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:40px;counter-reset:s}
+.step{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;position:relative}
+.step:before{counter-increment:s;content:"0" counter(s);font-size:12px;font-weight:800;color:var(--k);letter-spacing:.1em}
+.step h4{font-size:16px;margin:6px 0}
+.step p{font-size:13.5px;color:var(--mut)}
+.step .who{display:inline-block;margin-top:10px}
+.patterns{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:36px}
+.pat{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:24px}
+.pat h4{font-size:18px;margin-bottom:6px}
+.pat h4 em{font-style:normal;color:var(--k);font-size:13px;margin-left:8px;letter-spacing:.08em}
+.pat p{color:var(--mut);font-size:14.5px}
+.pat svg{margin-top:14px}
+.guard{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:36px}
+.g{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px}
+.g b{display:block;font-size:15px;margin-bottom:6px}
+.g p{font-size:13.5px;color:var(--mut)}
+.stack{display:flex;flex-wrap:wrap;gap:10px;margin-top:30px}
 .pill{border:1px solid var(--line);border-radius:99px;padding:6px 14px;font-size:13.5px;color:#c9cee0;background:#0b0e16}
-footer{padding:50px 0 70px;color:var(--mut);font-size:13px;border-top:1px solid var(--line)}
-@media(max-width:640px){nav a{display:none}.hero{padding:50px 0 40px}h3{font-size:26px}}
+footer{padding:46px 0 70px;color:var(--dim);font-size:13px;border-top:1px solid var(--line)}
+.reveal{opacity:0;transform:translateY(18px);transition:all .7s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
+@media(max-width:900px){.nodes,.patterns{grid-template-columns:1fr}.steps{grid-template-columns:1fr 1fr}.guard,.stats{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){nav .links{display:none}.hero{padding:56px 0 40px}.steps{grid-template-columns:1fr}.layer{grid-template-columns:1fr;gap:4px}section{padding:60px 0}}
 </style>
 </head>
 <body>
-<div class="wrap">
-<nav><div class="logo">NYX<span>·</span>TREK</div><div><a href="#about">关于</a><a href="#cluster">Agent 集群</a><a href="#stack">技术栈</a></div></nav>
+<nav><div class="wrap"><div class="logo">NYX<span>·</span>TREK</div><div class="links"><a href="#arch">架构</a><a href="#nodes">节点长板</a><a href="#routing">任务路由</a><a href="#swarm">集群作业</a><a href="#stack">技术栈</a></div></div></nav>
 
+<div class="wrap">
 <header class="hero">
   <div class="tag">DEVELOPER · HOMELAB · MCP</div>
   <h1>阑夜行<br><span class="grad">三台电脑，一个集群</span></h1>
-  <p class="lead">我是 Ethan，一个折腾开发基础设施的开发者。这里记录我的 homelab：用 MCP 把三台实体电脑连成一个可远程编排的开发集群。</p>
-  <p class="lead" style="font-size:15px;margin-top:10px">Hi, I'm Ethan — a developer building self-hosted dev infrastructure. This is my homelab: three physical machines wired into one remotely orchestrated cluster over MCP.</p>
+  <p class="lead">我是 Ethan，一个折腾开发基础设施的开发者。这是我的 homelab：用 MCP 把一台台式机、两台笔记本连成一个统一编排的 Agent 集群——每台机器只做自己最擅长的事，再像一个团队一样协作交付。</p>
+  <p class="lead en">A three-machine developer homelab: one entry point, capability-based routing, and agents that split, hand off and verify each other's work.</p>
+  <div class="stats">
+    <div class="stat"><b class="grad">3</b><span>实体节点 · 2 种操作系统</span></div>
+    <div class="stat"><b class="grad">13 TB</b><span>集群总存储</span></div>
+    <div class="stat"><b class="grad">72 GB</b><span>集群总内存</span></div>
+    <div class="stat"><b class="grad">0</b><span>对外开放的入站端口</span></div>
+  </div>
 </header>
 
-<section id="about">
-  <h2>ABOUT</h2>
-  <h3>把 Agent 当作团队成员</h3>
-  <p class="sub">在我这里，Agent 不是聊天窗口，而是能读写文件、跑命令、管理服务的同事。我搭建了一个跨三台实体电脑的 Agent 集群：一个统一入口，按需把任务派到 Windows 台式机、ThinkBook 和 Linux 笔记本上执行。</p>
-</section>
+<!-- 1. ARCH -->
+<section id="arch" class="reveal">
+  <div class="eyebrow">01 · ARCHITECTURE</div>
+  <h2>大致结构：五层，一个入口</h2>
+  <p class="sub">编排层只认识一个地址。请求带着 <code>machine</code> 参数进入边缘网关，鉴权后沿各自的加密隧道落到目标节点；节点之间再通过内网互相取数、交接产物。</p>
 
-<section id="cluster">
-  <h2>AGENT CLUSTER</h2>
-  <h3>三机集群拓扑</h3>
-  <p class="sub">AI 编排层通过 MCP（Model Context Protocol）发起调用，经边缘聚合网关鉴权与路由，再沿各自的加密隧道抵达三台机器。每一跳都带独立令牌，机器本身不开放任何入站端口。</p>
-
-  <div class="topo">
-  <svg viewBox="0 0 1000 560" role="img" aria-label="三机 Agent 集群拓扑图">
+  <div class="box">
+  <svg viewBox="0 0 1000 600" role="img" aria-label="集群拓扑">
     <defs>
       <linearGradient id="ga" x1="0" x2="1"><stop offset="0" stop-color="#7c6cff"/><stop offset="1" stop-color="#22d3ee"/></linearGradient>
-      <filter id="glow"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      <filter id="glow"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
     </defs>
-    <!-- links -->
+    <g font-size="11" fill="#4d566b" letter-spacing="2">
+      <text x="24" y="80">编排层</text><text x="24" y="230">接入层</text><text x="24" y="330">传输层</text><text x="24" y="460">执行层</text><text x="24" y="572">数据层</text>
+    </g>
+    <g stroke="#ffffff08"><path d="M90 150H980M90 280H980M90 370H980M90 540H980"/></g>
     <g fill="none" stroke-width="2.2">
-      <path d="M500 112 V190" stroke="url(#ga)" class="flow"/>
-      <path d="M500 262 C500 330 180 320 180 392" stroke="#7c6cff" class="flow"/>
-      <path d="M500 262 V392" stroke="#22d3ee" class="flow"/>
-      <path d="M500 262 C500 330 820 320 820 392" stroke="#f472b6" class="flow"/>
+      <path d="M540 112 V192" stroke="url(#ga)" class="flow"/>
+      <path d="M540 262 C540 330 230 330 230 400" stroke="#7c6cff" class="flow"/>
+      <path d="M540 262 V400" stroke="#22d3ee" class="flow"/>
+      <path d="M540 262 C540 330 850 330 850 400" stroke="#f472b6" class="flow"/>
     </g>
-    <g fill="none" stroke="#2a3142" stroke-width="1.4" stroke-dasharray="3 6">
-      <path d="M260 470 H420"/><path d="M580 470 H740"/>
+    <g fill="none" stroke="#3a4257" stroke-width="1.4" stroke-dasharray="3 6">
+      <path d="M330 470 H440" class="flow"/><path d="M640 470 H750" class="flow r"/>
+      <path d="M230 520 V552"/><path d="M540 520 V552"/><path d="M850 520 V552"/>
     </g>
-    <text x="340" y="462" fill="#5d6680" font-size="12" text-anchor="middle">内网互联</text>
-    <text x="660" y="462" fill="#5d6680" font-size="12" text-anchor="middle">内网互联</text>
-    <!-- orchestrator -->
-    <g filter="url(#glow)"><rect x="380" y="40" width="240" height="72" rx="18" fill="#141827" stroke="url(#ga)" stroke-width="1.8"/></g>
-    <text x="500" y="72" fill="#e8ebf2" font-size="19" font-weight="700" text-anchor="middle">AI 编排层</text>
-    <text x="500" y="96" fill="#8b93a7" font-size="13" text-anchor="middle">MCP 客户端 · 任务分发</text>
-    <!-- mux -->
-    <rect x="360" y="190" width="280" height="72" rx="18" fill="#101523" stroke="#22d3ee" stroke-width="1.6"/>
-    <text x="500" y="222" fill="#e8ebf2" font-size="18" font-weight="700" text-anchor="middle">边缘聚合网关</text>
-    <text x="500" y="246" fill="#8b93a7" font-size="13" text-anchor="middle">鉴权 · 按 machine 参数路由</text>
-    <text x="516" y="160" fill="#5d6680" font-size="12">HTTPS + Bearer</text>
-    <text x="250" y="330" fill="#5d6680" font-size="12">加密隧道</text>
-    <text x="510" y="340" fill="#5d6680" font-size="12">加密隧道</text>
-    <text x="690" y="330" fill="#5d6680" font-size="12">加密隧道</text>
-    <!-- machines -->
-    <g>
-      <rect x="80" y="392" width="200" height="136" rx="18" fill="#0f1220" stroke="#7c6cff" stroke-width="1.6"/>
-      <circle cx="104" cy="418" r="5" fill="#34d399" class="pulse"/>
-      <text x="118" y="423" fill="#e8ebf2" font-size="17" font-weight="700">ETHAN</text>
-      <text x="100" y="452" fill="#8b93a7" font-size="13">Windows 11 台式机</text>
-      <text x="100" y="476" fill="#8b93a7" font-size="13">主力算力 · 部署中枢</text>
-      <text x="100" y="504" fill="#7c6cff" font-size="12">PowerShell</text>
-    </g>
-    <g>
-      <rect x="400" y="392" width="200" height="136" rx="18" fill="#0f1220" stroke="#22d3ee" stroke-width="1.6"/>
-      <circle cx="424" cy="418" r="5" fill="#34d399" class="pulse"/>
-      <text x="438" y="423" fill="#e8ebf2" font-size="17" font-weight="700">LENOVO</text>
-      <text x="420" y="452" fill="#8b93a7" font-size="13">ThinkBook · Windows</text>
-      <text x="420" y="476" fill="#8b93a7" font-size="13">移动工作站</text>
-      <text x="420" y="504" fill="#22d3ee" font-size="12">PowerShell</text>
-    </g>
-    <g>
-      <rect x="720" y="392" width="200" height="136" rx="18" fill="#0f1220" stroke="#f472b6" stroke-width="1.6"/>
-      <circle cx="744" cy="418" r="5" fill="#34d399" class="pulse"/>
-      <text x="758" y="423" fill="#e8ebf2" font-size="17" font-weight="700">XIAOMI</text>
-      <text x="740" y="452" fill="#8b93a7" font-size="13">Arch · Omarchy Linux</text>
-      <text x="740" y="476" fill="#8b93a7" font-size="13">常驻服务 · 开机自启</text>
-      <text x="740" y="504" fill="#f472b6" font-size="12">bash · systemd</text>
-    </g>
+    <text x="385" y="462" fill="#5d6680" font-size="11.5" text-anchor="middle">内网</text>
+    <text x="695" y="462" fill="#5d6680" font-size="11.5" text-anchor="middle">内网</text>
+    <g filter="url(#glow)"><rect x="410" y="40" width="260" height="72" rx="18" fill="#141827" stroke="url(#ga)" stroke-width="1.8"/></g>
+    <text x="540" y="72" fill="#e9ecf3" font-size="19" font-weight="700" text-anchor="middle">AI 编排层</text>
+    <text x="540" y="96" fill="#8b93a7" font-size="13" text-anchor="middle">拆解任务 · 选节点 · 汇总验收</text>
+    <rect x="395" y="192" width="290" height="70" rx="18" fill="#101523" stroke="#22d3ee" stroke-width="1.6"/>
+    <text x="540" y="223" fill="#e9ecf3" font-size="18" font-weight="700" text-anchor="middle">边缘聚合网关</text>
+    <text x="540" y="246" fill="#8b93a7" font-size="13" text-anchor="middle">鉴权 · 按 machine 路由 · 在线探测</text>
+    <text x="556" y="160" fill="#5d6680" font-size="11.5">HTTPS + Bearer</text>
+    <text x="300" y="335" fill="#5d6680" font-size="11.5">隧道 A</text><text x="550" y="345" fill="#5d6680" font-size="11.5">隧道 B</text><text x="730" y="335" fill="#5d6680" font-size="11.5">隧道 C</text>
+    <g><rect x="130" y="400" width="200" height="120" rx="18" fill="#0f1220" stroke="#7c6cff" stroke-width="1.6"/><circle cx="154" cy="426" r="5" fill="#34d399" class="pulse"/>
+      <text x="168" y="431" fill="#e9ecf3" font-size="17" font-weight="700">ETHAN</text><text x="150" y="460" fill="#8b93a7" font-size="13">RTX 3070 Ti · 32 GB</text><text x="150" y="484" fill="#7c6cff" font-size="13" font-weight="700">算力与存储中枢</text><text x="150" y="506" fill="#5d6680" font-size="11.5">Windows 11</text></g>
+    <g><rect x="440" y="400" width="200" height="120" rx="18" fill="#0f1220" stroke="#22d3ee" stroke-width="1.6"/><circle cx="464" cy="426" r="5" fill="#34d399" class="pulse"/>
+      <text x="478" y="431" fill="#e9ecf3" font-size="17" font-weight="700">LENOVO</text><text x="460" y="460" fill="#8b93a7" font-size="13">22 线程 · 32 GB</text><text x="460" y="484" fill="#22d3ee" font-size="13" font-weight="700">并行执行与机动</text><text x="460" y="506" fill="#5d6680" font-size="11.5">Windows · ThinkBook</text></g>
+    <g><rect x="750" y="400" width="200" height="120" rx="18" fill="#0f1220" stroke="#f472b6" stroke-width="1.6"/><circle cx="774" cy="426" r="5" fill="#34d399" class="pulse"/>
+      <text x="788" y="431" fill="#e9ecf3" font-size="17" font-weight="700">XIAOMI</text><text x="770" y="460" fill="#8b93a7" font-size="13">Arch Linux · 常驻</text><text x="770" y="484" fill="#f472b6" font-size="13" font-weight="700">值守与调度</text><text x="770" y="506" fill="#5d6680" font-size="11.5">systemd · linger</text></g>
+    <rect x="130" y="552" width="820" height="34" rx="10" fill="#0c0f18" stroke="#1d2332"/>
+    <text x="540" y="574" fill="#8b93a7" font-size="12.5" text-anchor="middle">Git 仓库 · 共享任务目录 · 产物与日志 —— 所有交接都落成文件，可追溯、可重放</text>
   </svg>
   </div>
 
-  <div class="grid">
-    <div class="card" style="--k:#7c6cff"><div class="os">NODE 01 · WINDOWS 11</div><h4><span class="dot"></span>ETHAN 台式机</h4><p>集群的部署中枢：网关代码、发布工具都在这里。负责重计算与本地模型。</p></div>
-    <div class="card" style="--k:#22d3ee"><div class="os">NODE 02 · WINDOWS</div><h4><span class="dot"></span>Lenovo ThinkBook</h4><p>随身节点，登录即自动拉起网关与隧道，出门也在集群里。</p></div>
-    <div class="card" style="--k:#f472b6"><div class="os">NODE 03 · ARCH LINUX</div><h4><span class="dot"></span>Xiaomi · Omarchy</h4><p>Linux 常驻节点，systemd 用户服务 + linger，无人登录也保持在线。</p></div>
+  <div class="layers">
+    <div class="layer" style="--k:#7c6cff"><div><small>LAYER 1</small><b>编排层</b></div><p>理解需求、拆成子任务，按「能力标签」挑节点，最后汇总结果并验收。它不直接碰硬件，只发 MCP 调用。</p></div>
+    <div class="layer" style="--k:#22d3ee"><div><small>LAYER 2</small><b>接入层</b></div><p>边缘聚合网关：单一入口、统一鉴权，把一份工具清单扩展成「同一套工具 × 三台机器」，并提供节点在线探测。</p></div>
+    <div class="layer" style="--k:#a78bfa"><div><small>LAYER 3</small><b>传输层</b></div><p>每台机器一条出站加密隧道，令牌逐跳隔离；机器不开任何入站端口，换网络、出门在外也照样在线。</p></div>
+    <div class="layer" style="--k:#f472b6"><div><small>LAYER 4</small><b>执行层</b></div><p>三台节点上的 MCP 服务：读写文件、执行命令、管理进程。Windows 走 PowerShell，Linux 走 bash，开机或登录即自启。</p></div>
+    <div class="layer" style="--k:#34d399"><div><small>LAYER 5</small><b>数据层</b></div><p>Git 与共享目录承载任务单、中间产物和日志。Agent 之间不靠「记忆」交接，而靠可检查的文件。</p></div>
   </div>
 </section>
 
-<section id="stack">
-  <h2>STACK</h2>
-  <h3>用到的东西</h3>
-  <p class="sub">全部基于开放协议与免费基础设施，零入站端口，令牌逐跳隔离。</p>
+<!-- 2. NODES -->
+<section id="nodes" class="reveal">
+  <div class="eyebrow">02 · NODE STRENGTHS</div>
+  <h2>扬长避短：每台机器只干最擅长的</h2>
+  <p class="sub">三台机器的硬件差异很大。与其让每台都「什么都干一点」，不如按长板给它们定岗：重算力归台式机，高并发归新笔记本，长时间值守归 Linux 小机器。</p>
+  <div class="nodes">
+    <div class="node" style="--k:#7c6cff">
+      <div class="os">NODE 01 · WINDOWS 11 · DESKTOP</div>
+      <h3><span class="dot"></span>ETHAN</h3>
+      <div class="role">算力与存储中枢</div>
+      <div class="spec"><div><span>CPU</span><span>i5-12490F · 6C / 12T</span></div><div><span>GPU</span><span>RTX 3070 Ti</span></div><div><span>内存</span><span>32 GB</span></div><div><span>存储</span><span>≈ 13 TB</span></div><div><span>供电</span><span>市电常开</span></div></div>
+      <div class="bars"><div class="bar">GPU 推理<i style="--w:95%"></i></div><div class="bar">存储容量<i style="--w:100%"></i></div><div class="bar">并发线程<i style="--w:50%"></i></div></div>
+      <ul><li>本地大模型推理、向量化（Ollama + CUDA）</li><li>图像与多媒体处理、批量转码</li><li>大数据集、模型权重与归档仓库</li><li>部署中枢：网关代码、发布与构建工具</li></ul>
+    </div>
+    <div class="node" style="--k:#22d3ee">
+      <div class="os">NODE 02 · WINDOWS · THINKBOOK</div>
+      <h3><span class="dot"></span>LENOVO</h3>
+      <div class="role">并行执行与机动节点</div>
+      <div class="spec"><div><span>CPU</span><span>Core Ultra 7 155H · 16C / 22T</span></div><div><span>GPU</span><span>Intel Arc 核显</span></div><div><span>内存</span><span>32 GB</span></div><div><span>存储</span><span>≈ 950 GB</span></div><div><span>供电</span><span>电池 · 可随身</span></div></div>
+      <div class="bars"><div class="bar">并发线程<i style="--w:100%"></i></div><div class="bar">机动性<i style="--w:95%"></i></div><div class="bar">GPU 推理<i style="--w:35%"></i></div></div>
+      <ul><li>多任务并行：编译、测试、批量脚本</li><li>浏览器自动化与网页抓取</li><li>Windows 侧兼容性验证</li><li>出门在外的「随身集群」入口</li></ul>
+    </div>
+    <div class="node" style="--k:#f472b6">
+      <div class="os">NODE 03 · ARCH · OMARCHY</div>
+      <h3><span class="dot"></span>XIAOMI</h3>
+      <div class="role">值守、调度与 Linux 原生</div>
+      <div class="spec"><div><span>CPU</span><span>Skylake-U 低压</span></div><div><span>GPU</span><span>GeForce 940MX</span></div><div><span>内存</span><span>≈ 8 GB</span></div><div><span>存储</span><span>237 GB SSD</span></div><div><span>在线</span><span>连续运行 12 天+</span></div></div>
+      <div class="bars"><div class="bar">持续在线<i style="--w:100%"></i></div><div class="bar">Linux 原生<i style="--w:100%"></i></div><div class="bar">重计算<i style="--w:20%"></i></div></div>
+      <ul><li>定时任务、队列与心跳监控</li><li>轻量常驻服务（Docker 容器、Webhook）</li><li>Linux 原生工具链与脚本</li><li>小模型兜底推理，主节点离线时接管</li></ul>
+    </div>
+  </div>
+</section>
+
+<!-- ROUTING -->
+<section id="routing" class="reveal">
+  <div class="eyebrow">03 · ROUTING</div>
+  <h2>任务路由：按能力标签派单</h2>
+  <p class="sub">编排层不按「哪台空闲」派单，而是先看任务需要什么能力，再看节点是否在线；主节点不可用时自动降级到备选。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>任务类型</th><th>需要的能力</th><th>首选</th><th>备选</th></tr></thead>
+    <tbody>
+      <tr><td>本地 LLM 推理 / 向量化</td><td>GPU 显存</td><td><span class="chip" style="--k:#7c6cff">ETHAN</span></td><td><span class="chip" style="--k:#f472b6">XIAOMI</span> 小模型</td></tr>
+      <tr><td>图像、视频批处理</td><td>GPU + 大容量存储</td><td><span class="chip" style="--k:#7c6cff">ETHAN</span></td><td>排队等待</td></tr>
+      <tr><td>编译、测试、批量脚本</td><td>多核并发</td><td><span class="chip" style="--k:#22d3ee">LENOVO</span></td><td><span class="chip" style="--k:#7c6cff">ETHAN</span></td></tr>
+      <tr><td>网页抓取、浏览器自动化</td><td>并发 + 图形环境</td><td><span class="chip" style="--k:#22d3ee">LENOVO</span></td><td><span class="chip" style="--k:#7c6cff">ETHAN</span></td></tr>
+      <tr><td>定时任务、监控、Webhook</td><td>7×24 在线</td><td><span class="chip" style="--k:#f472b6">XIAOMI</span></td><td><span class="chip" style="--k:#7c6cff">ETHAN</span></td></tr>
+      <tr><td>Linux 工具链、容器</td><td>原生 Linux</td><td><span class="chip" style="--k:#f472b6">XIAOMI</span></td><td><span class="chip" style="--k:#7c6cff">ETHAN</span> WSL</td></tr>
+      <tr><td>数据归档、模型权重</td><td>存储容量</td><td><span class="chip" style="--k:#7c6cff">ETHAN</span></td><td>—</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 3. SWARM -->
+<section id="swarm" class="reveal">
+  <div class="eyebrow">04 · SWARM</div>
+  <h2>集群作业：长板如何接力</h2>
+  <p class="sub">以一次典型的「资料调研 → 生成内容 → 发布」任务为例：编排层拆单，三台机器各接一段，产物以文件形式交接，最后由另一台机器交叉验收。</p>
+  <div class="steps">
+    <div class="step" style="--k:#7c6cff"><h4>拆解</h4><p>编排层把需求拆成子任务，写入共享任务单，标注每段需要的能力。</p><span class="chip who" style="--k:#7c6cff">编排层</span></div>
+    <div class="step" style="--k:#22d3ee"><h4>采集</h4><p>多路并行抓取网页与资料，清洗成结构化文本落盘。</p><span class="chip who" style="--k:#22d3ee">LENOVO</span></div>
+    <div class="step" style="--k:#7c6cff"><h4>生成</h4><p>本地模型做摘要、向量化与配图生成，大文件直接存在本机。</p><span class="chip who" style="--k:#7c6cff">ETHAN</span></div>
+    <div class="step" style="--k:#f472b6"><h4>验收</h4><p>跑校验脚本与回归检查，结果写回任务单；不过关就打回重做。</p><span class="chip who" style="--k:#f472b6">XIAOMI</span></div>
+    <div class="step" style="--k:#34d399"><h4>交付</h4><p>合并产物、提交 Git、触发发布；值守节点持续监控上线状态。</p><span class="chip who" style="--k:#34d399">全体</span></div>
+  </div>
+
+  <div class="patterns">
+    <div class="pat" style="--k:#22d3ee">
+      <h4>扇出 / 汇聚<em>FAN-OUT · FAN-IN</em></h4>
+      <p>同一类任务切成多份，同时派给多台机器，完成后由编排层合并。适合批量抓取、批量处理。</p>
+      <svg viewBox="0 0 420 110"><g fill="none" stroke-width="1.8"><path d="M60 55 C120 55 120 18 180 18" stroke="#7c6cff" class="flow"/><path d="M60 55 H180" stroke="#22d3ee" class="flow"/><path d="M60 55 C120 55 120 92 180 92" stroke="#f472b6" class="flow"/><path d="M240 18 C300 18 300 55 360 55" stroke="#7c6cff" class="flow"/><path d="M240 55 H360" stroke="#22d3ee" class="flow"/><path d="M240 92 C300 92 300 55 360 55" stroke="#f472b6" class="flow"/></g><circle cx="50" cy="55" r="12" fill="#141827" stroke="#8b93a7"/><circle cx="370" cy="55" r="12" fill="#141827" stroke="#8b93a7"/><rect x="180" y="8" width="60" height="20" rx="6" fill="#0f1220" stroke="#7c6cff"/><rect x="180" y="45" width="60" height="20" rx="6" fill="#0f1220" stroke="#22d3ee"/><rect x="180" y="82" width="60" height="20" rx="6" fill="#0f1220" stroke="#f472b6"/></svg>
+    </div>
+    <div class="pat" style="--k:#7c6cff">
+      <h4>流水线接力<em>PIPELINE</em></h4>
+      <p>上一段的输出就是下一段的输入：采集 → 生成 → 验收。每台机器只做自己最快的那一段。</p>
+      <svg viewBox="0 0 420 110"><g fill="none" stroke="#3a4257" stroke-width="1.8"><path d="M110 55 H150" class="flow"/><path d="M250 55 H290" class="flow"/></g><rect x="20" y="35" width="90" height="40" rx="10" fill="#0f1220" stroke="#22d3ee"/><rect x="150" y="35" width="100" height="40" rx="10" fill="#0f1220" stroke="#7c6cff"/><rect x="290" y="35" width="110" height="40" rx="10" fill="#0f1220" stroke="#f472b6"/><g font-size="13" fill="#e9ecf3" text-anchor="middle"><text x="65" y="60">采集</text><text x="200" y="60">生成</text><text x="345" y="60">验收</text></g></svg>
+    </div>
+    <div class="pat" style="--k:#f472b6">
+      <h4>交叉验收<em>MAKER · CHECKER</em></h4>
+      <p>「做」和「验」分在不同机器、不同 Agent 上，避免自己检查自己。验收不过的产物会带着原因退回。</p>
+      <svg viewBox="0 0 420 110"><g fill="none" stroke-width="1.8"><path d="M140 40 H280" stroke="#7c6cff" class="flow"/><path d="M280 72 H140" stroke="#f472b6" class="flow"/></g><rect x="30" y="30" width="110" height="52" rx="12" fill="#0f1220" stroke="#7c6cff"/><rect x="280" y="30" width="110" height="52" rx="12" fill="#0f1220" stroke="#f472b6"/><g font-size="13" text-anchor="middle"><text x="85" y="61" fill="#e9ecf3">Maker</text><text x="335" y="61" fill="#e9ecf3">Checker</text><text x="210" y="32" fill="#5d6680" font-size="11">产物</text><text x="210" y="92" fill="#5d6680" font-size="11">通过 / 退回</text></g></svg>
+    </div>
+    <div class="pat" style="--k:#34d399">
+      <h4>值守与接管<em>WATCHDOG · FAILOVER</em></h4>
+      <p>常驻节点定时探测其他节点；某台离线或卡住时，任务按路由表降级到备选节点继续跑。</p>
+      <svg viewBox="0 0 420 110"><circle cx="70" cy="55" r="26" fill="#0f1220" stroke="#f472b6"/><text x="70" y="60" fill="#e9ecf3" font-size="12" text-anchor="middle">值守</text><g fill="none" stroke-width="1.6"><path d="M96 45 C170 20 230 20 290 30" stroke="#34d399" class="flow"/><path d="M96 65 C170 90 230 90 290 80" stroke="#34d399" class="flow" opacity=".5"/></g><rect x="290" y="16" width="110" height="30" rx="8" fill="#0f1220" stroke="#7c6cff"/><rect x="290" y="66" width="110" height="30" rx="8" fill="#0f1220" stroke="#22d3ee" stroke-dasharray="4 4"/><g font-size="12" text-anchor="middle"><text x="345" y="36" fill="#e9ecf3">主节点</text><text x="345" y="86" fill="#8b93a7">备选接管</text></g></svg>
+    </div>
+  </div>
+
+  <div class="guard">
+    <div class="g"><b>零入站端口</b><p>全部走出站隧道，家里路由器不做任何端口映射。</p></div>
+    <div class="g"><b>令牌逐跳隔离</b><p>入口一把钥匙、节点各一把，任何一段泄露都不连坐。</p></div>
+    <div class="g"><b>开机即上线</b><p>计划任务与 systemd 用户服务自启，断电重启后自动回归集群。</p></div>
+    <div class="g"><b>一切可追溯</b><p>任务单、产物、日志都落成文件，出了问题能回放每一步。</p></div>
+  </div>
+</section>
+
+<section id="stack" class="reveal">
+  <div class="eyebrow">05 · STACK</div>
+  <h2>用到的东西</h2>
+  <p class="sub">全部基于开放协议与免费基础设施。</p>
   <div class="stack">
-    <span class="pill">Model Context Protocol</span><span class="pill">Desktop Commander</span><span class="pill">Streamable HTTP</span><span class="pill">Cloudflare Workers</span><span class="pill">Cloudflare Tunnel</span><span class="pill">Tailscale</span><span class="pill">systemd</span><span class="pill">PowerShell</span><span class="pill">OpenRouter</span><span class="pill">Ollama</span>
+    <span class="pill">Model Context Protocol</span><span class="pill">Desktop Commander</span><span class="pill">Streamable HTTP</span><span class="pill">Cloudflare Workers</span><span class="pill">Cloudflare Tunnel</span><span class="pill">Tailscale</span><span class="pill">Ollama + CUDA</span><span class="pill">Docker</span><span class="pill">WSL</span><span class="pill">systemd</span><span class="pill">PowerShell</span><span class="pill">Node.js</span><span class="pill">Python</span><span class="pill">Git</span><span class="pill">Hyprland</span>
   </div>
 </section>
 
-<footer>© 2026 阑夜行 · Ethan — Hangzhou · <a href="https://github.com/Ethandangzhen" style="color:#8b93a7">GitHub</a></footer>
+<footer>© 2026 阑夜行 · Ethan — Hangzhou · <a href="https://github.com/Ethandz2026">GitHub</a></footer>
 </div>
+<script>
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
 </body>
 </html>
